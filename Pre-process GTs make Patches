@@ -1,0 +1,230 @@
+function [] = make_patches_multiple_categories(em_image, label_image, em_path, labels_path, patch_size, num_patches, em_name, label_name, sigma_blur, length_motion, color)
+%[folder_em, folder_patches]
+% based on make_patches_2.
+
+%em_image = imread(em_image);
+%I = imread(label_image);  %(''Z:\Elisa\Thesis\Backup\Data\ac3_EM\Thousand_highmag_256slices_2kcenter_1k_inv_0254.png'');;
+tic
+% I = label_image;
+% J = unique_rgb(I);
+% mb = imerode(J,ones(3,3)) ~= imdilate(J,ones(3,3));
+% mb(J==0) = 1;
+% mb = double(mb) + 1;
+% mb(J >450) = 0;
+
+%%%%%%%%%%% mb is volumetric but sparse
+%label_image = padarray(label_image,[1 1],0); %pad with 0 all around to take away the borders as possible pixels
+%em_image = padarray(em_image, [1,1], 0); % pad em so that it has the same indexing as the labels
+%D = bwdist(label_image==0,'chessboard');
+
+mkdir(labels_path);
+mkdir(em_path);
+
+if ~exist('sigma_blur','var') || isempty(sigma_blur)
+    sigma_blur = 0;
+end
+
+if ~exist('length_motion','var') || isempty(length_motion)
+    length_motion = 0;
+end
+
+if ~exist('color','var') || isempty(color)
+    color = 0;
+end
+
+
+
+
+diameter = patch_size/2;
+%valid = D > diameter;
+
+label_image = padarray(label_image,[diameter diameter]/2,0);
+em_image = padarray(em_image,[diameter diameter]/2,0);
+
+%%%%%
+
+valid = false(size(label_image)+2);
+
+tic 
+for deg=0:5:360
+    
+    lb_rot = padarray(imrotate(label_image,deg,'crop'),[1 1],0);
+    
+    
+    D_rot = bwdist(lb_rot==0,'chessboard');
+    
+    %figure; imagesc(D_rot > diameter); colormap gray; title(num2str(deg))
+    
+    valid = valid | imrotate(D_rot > diameter,-deg,'crop');
+end
+toc
+
+
+
+%diameter = patch_size/2;
+%valid = D > diameter;
+
+
+%scaling = [0.7:0.1:1.7];
+num_partitions = 25;
+%sigma = 10;
+%scaling = randn(1,num_partitions)/sigma+1;
+
+%num_partitions = randsample([2:2:6], 1)
+batch_size = ceil(num_patches/num_partitions);
+
+mx = double(max(label_image(:)-1));
+
+remaining_patches = num_patches;
+ipatch = 0;
+
+[y,x,z] = ind2sub(size(valid),find(valid)); %all these pixels have valid patches
+
+
+if isempty(find(valid, 1))
+    h=warning('There are no patches found with the requested size',...
+        'Request Declined');
+end
+
+blurred = 0;
+mot = 0;
+while remaining_patches > 0
+    remaining_patches
+    
+    
+    %   figure; imagesc(mb);
+    
+    %figure; imagesc(valid);
+    
+    
+    if rand < 1/2
+        
+    end
+    
+    
+    
+    
+    %define how many patches to take
+    if isempty(num_patches)
+        num_patches = size(y, 1);
+    end
+    
+    
+    scaled_batch = min(batch_size, remaining_patches);
+    remaining_patches = remaining_patches - batch_size;
+    % idx = num_patches - remaining_patches;
+    
+    seeds = randsample(length(y), scaled_batch);
+    
+    for ibatch = 1:scaled_batch
+        ipatch = ipatch + 1;
+        
+        yp = y(seeds(ibatch));
+        xp = x(seeds(ibatch));
+        zp = z(seeds(ibatch));
+        
+        try
+            diameter_rot = ceil(diameter*sqrt(2));
+            selected_patch = label_image(yp-diameter_rot:yp+diameter_rot-1,xp-diameter_rot:xp+diameter_rot-1,zp);
+        catch
+            keyboard
+        end
+        
+        rotPatch = zeros(patch_size,patch_size);
+        
+        randomRotations = randperm(1000)/1000*360;
+        for irot=1:numel(randomRotations)
+            randRot = randomRotations(irot);
+            %if rand < 1/10
+            %     randRot = 0;
+            %else
+            %randRot = randsample(0:360,1);
+            
+            %end
+            
+            rotPatch = imrotate(selected_patch,randRot);
+            cnRot = round(size(rotPatch)/2);
+            rotPatch = rotPatch(cnRot(1)-patch_size/2:cnRot(1)+patch_size/2-1,cnRot(2)-patch_size/2:cnRot(2)+patch_size/2-1);
+            
+            if all(rotPatch(:)~=0)
+                break
+            end
+        end
+        
+        selected_patch = rotPatch;
+        selected_em = em_image(yp-diameter_rot:yp+diameter_rot-1,xp-diameter_rot:xp+diameter_rot-1,zp);
+        selected_em = imrotate(selected_em,randRot);
+        selected_em = selected_em(cnRot(1)-patch_size/2:cnRot(1)+patch_size/2-1,cnRot(2)-patch_size/2:cnRot(2)+patch_size/2-1);
+        
+        
+        uq = unique(selected_patch);
+        
+        numel(uq);
+        if numel(uq) <= 1
+            %keyboard
+        end
+        
+        %data augmentation
+        %rotation
+        k = randsample(4, 1);
+        selected_patch = imrotate(selected_patch, k*90);
+        selected_em = imrotate(selected_em, k*90);  
+        %flip
+        if rand < 1/2
+            selected_em = flip(selected_em,1);
+            selected_patch = flip(selected_patch,1);
+        end
+        %blurriness
+        if sigma_blur ~= 0
+            if randsample(100,1) >= 98
+                selected_em = imgaussfilt(selected_em, sigma_blur);
+                disp('blurred')
+                blurred = blurred+1;
+            end
+        end
+        %motion
+        if length_motion ~= 0
+             if randsample(100,1) >= 98
+                 angle = randsample(360, 1);
+                 motionfilt = fspecial('motion', length_motion, angle);
+                 selected_em =  imfilter(selected_em, motionfilt, 'replicate');
+                 disp('motion')
+                 mot = mot+1;
+             end
+        end
+        %color correction
+        if color ~= 0
+            if randsample(100,1) >= 98
+                selected_em = rand_color(selected_em);
+            end 
+        end
+        
+        
+        
+        %rescale to original dimension
+        %selected_patch = imresize(selected_patch, 1/scaling_factor,'nearest');
+        %selected_em = imresize(selected_em, 1/scaling_factor);
+        
+        %for visualization (comment in cycle)
+        %comb = imfuse(selected_em, selected_patch);
+        %figure; imagesc(comb);
+        %figure;
+        %imagesc(labeloverlay(selected_em,selected_patch))
+        
+        selected_patch_unit8 = uint8(255*(double(selected_patch)-1)/mx);
+        
+%         windowSize = 3;
+%         kernel = ones(windowSize) ;
+%         selected_patch_unit8 = imfilter(selected_patch_unit8, kernel, 'conv');
+%         selected_patch_unit8 = imerode(selected_patch_unit8, ones(3,3));
+        
+        if all(selected_patch_unit8(:)==255)
+            % keyboard
+        end
+        
+        imwrite(selected_patch_unit8, fullfile(labels_path, strcat(label_name, '_', num2str(ipatch, '%05d'),'.png')));
+        imwrite(selected_em, fullfile(em_path, strcat(em_name, '_',num2str(ipatch, '%05d'),'.png')));
+    end
+end
+toc
+
