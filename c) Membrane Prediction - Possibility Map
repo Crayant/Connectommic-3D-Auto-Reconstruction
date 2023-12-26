@@ -1,0 +1,808 @@
+function varargout = predict(varargin)
+% PREDICT MATLAB code for predict.fig
+%      PREDICT, by itself, creates a new PREDICT or raises the existing
+%      singleton*.
+%
+%      H = PREDICT returns the handle to a new PREDICT or the handle to
+%      the existing singleton*.
+%
+%      PREDICT('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in PREDICT.M with the given input arguments.
+%
+%      PREDICT('Property','Value',...) creates a new PREDICT or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before predict_OpeningFcn gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to predict_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Edit the above text to modify the response to help predict
+
+% Last Modified by GUIDE v2.5 25-Oct-2019 17:40:17
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @predict_OpeningFcn, ...
+    'gui_OutputFcn',  @predict_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before predict is made visible.
+function predict_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to predict (see VARARGIN)
+
+% Choose default command line output for predict
+handles.output = hObject;
+evalin('base', 'init');
+set(handles.text_network, 'enable', 'off');
+set(handles.edit_network_prediction, 'enable', 'off');
+set(handles.button_browse_net, 'enable', 'off');
+set(handles.text_X, 'enable', 'off');
+set(handles.edit_X1, 'enable', 'off');
+set(handles.text_to_X, 'enable', 'off');
+set(handles.edit_X2, 'enable', 'off');
+set(handles.text_Y, 'enable', 'off');
+set(handles.edit_Y1, 'enable', 'off');
+set(handles.text_to_Y, 'enable', 'off');
+set(handles.edit_Y2, 'enable', 'off');
+set(handles.text_Z, 'enable', 'off');
+set(handles.edit_Z1, 'enable', 'off');
+set(handles.text_to_Z, 'enable', 'off');
+set(handles.edit_Z2, 'enable', 'off');
+set(handles.text10, 'enable', 'off');
+set(handles.text_pred, 'enable', 'off');
+set(handles.edit_pred, 'enable', 'off');
+set(handles.button_pred, 'enable', 'off');
+set(handles.text_prob, 'enable', 'off');
+set(handles.edit_prob, 'enable', 'off');
+set(handles.button_prob, 'enable', 'off');
+set(handles.text_EM, 'enable', 'off');
+set(handles.popup_EM, 'enable', 'off');
+set(handles.text_classes, 'enable', 'off');
+
+
+
+
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes predict wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = predict_OutputFcn(hObject, eventdata, handles)
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+% --- Executes on selection change in popup_prediction.
+function popup_prediction_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_prediction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_prediction contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_prediction
+
+contents = get(handles.popup_prediction,'String');
+selected = contents{get(handles.popup_prediction,'Value')};
+
+if strcmp(selected, 'On portion of volume') == 1
+    set(handles.text_network, 'enable', 'on');
+    set(handles.edit_network_prediction, 'enable', 'on');
+    set(handles.button_browse_net, 'enable', 'on');
+    set(handles.text_X, 'enable', 'on');
+    set(handles.edit_X1, 'enable', 'on');
+    set(handles.text_to_X, 'enable', 'on');
+    set(handles.edit_X2, 'enable', 'on');
+    set(handles.text_Y, 'enable', 'on');
+    set(handles.edit_Y1, 'enable', 'on');
+    set(handles.text_to_Y, 'enable', 'on');
+    set(handles.edit_Y2, 'enable', 'on');
+    set(handles.text_Z, 'enable', 'on');
+    set(handles.edit_Z1, 'enable', 'on');
+    set(handles.text_to_Z, 'enable', 'on');
+    set(handles.edit_Z2, 'enable', 'on');
+    set(handles.text10, 'enable', 'on');
+    set(handles.text_pred, 'enable', 'on');
+    set(handles.edit_pred, 'enable', 'on');
+    set(handles.button_pred, 'enable', 'on');
+    set(handles.text_prob, 'enable', 'on');
+    set(handles.edit_prob, 'enable', 'on');
+    set(handles.button_prob, 'enable', 'on');
+    set(handles.text_EM, 'enable', 'on');
+    set(handles.popup_EM, 'enable', 'on');
+    set(handles.text_classes, 'enable', 'on');
+    
+    
+    
+elseif strcmp(selected, 'On whole volume') == 1
+    set(handles.text_network, 'enable', 'on');
+    set(handles.edit_network_prediction, 'enable', 'on');
+    set(handles.button_browse_net, 'enable', 'on');
+    set(handles.text10, 'enable', 'on');
+    set(handles.text_pred, 'enable', 'on');
+    set(handles.edit_pred, 'enable', 'on');
+    set(handles.button_pred, 'enable', 'on');
+    set(handles.text_prob, 'enable', 'on');
+    set(handles.edit_prob, 'enable', 'on');
+    set(handles.button_prob, 'enable', 'on');
+    set(handles.text_EM, 'enable', 'on');
+    set(handles.popup_EM, 'enable', 'on');
+    set(handles.text_X, 'enable', 'off');
+    set(handles.edit_X1, 'enable', 'off');
+    set(handles.text_to_X, 'enable', 'off');
+    set(handles.edit_X2, 'enable', 'off');
+    set(handles.text_Y, 'enable', 'off');
+    set(handles.edit_Y1, 'enable', 'off');
+    set(handles.text_to_Y, 'enable', 'off');
+    set(handles.edit_Y2, 'enable', 'off');
+    set(handles.text_Z, 'enable', 'off');
+    set(handles.edit_Z1, 'enable', 'off');
+    set(handles.text_to_Z, 'enable', 'off');
+    set(handles.edit_Z2, 'enable', 'off');
+    set(handles.text_classes, 'enable', 'on');
+    
+elseif strcmp(selected, 'From VAST annotation') == 1
+    set(handles.text_network, 'enable', 'on');
+    set(handles.edit_network_prediction, 'enable', 'on');
+    set(handles.button_browse_net, 'enable', 'on');
+    set(handles.text10, 'enable', 'on');
+    set(handles.text_pred, 'enable', 'on');
+    set(handles.edit_pred, 'enable', 'on');
+    set(handles.button_pred, 'enable', 'on');
+    set(handles.text_prob, 'enable', 'on');
+    set(handles.edit_prob, 'enable', 'on');
+    set(handles.button_prob, 'enable', 'on');
+    set(handles.text_EM, 'enable', 'on');
+    set(handles.popup_EM, 'enable', 'on');
+    set(handles.text_X, 'enable', 'off');
+    set(handles.edit_X1, 'enable', 'off');
+    set(handles.text_to_X, 'enable', 'off');
+    set(handles.edit_X2, 'enable', 'off');
+    set(handles.text_Y, 'enable', 'off');
+    set(handles.edit_Y1, 'enable', 'off');
+    set(handles.text_to_Y, 'enable', 'off');
+    set(handles.edit_Y2, 'enable', 'off');
+    set(handles.text_Z, 'enable', 'off');
+    set(handles.edit_Z1, 'enable', 'off');
+    set(handles.text_to_Z, 'enable', 'off');
+    set(handles.edit_Z2, 'enable', 'off');
+    set(handles.text_classes, 'enable', 'on');
+    
+elseif strcmp(selected, 'From skeleton file') == 1
+    set(handles.text_network, 'enable', 'on');
+    set(handles.edit_network_prediction, 'enable', 'on');
+    set(handles.button_browse_net, 'enable', 'on');
+    set(handles.text10, 'enable', 'on');
+    set(handles.text_pred, 'enable', 'on');
+    set(handles.edit_pred, 'enable', 'on');
+    set(handles.button_pred, 'enable', 'on');
+    set(handles.text_prob, 'enable', 'on');
+    set(handles.edit_prob, 'enable', 'on');
+    set(handles.button_prob, 'enable', 'on');
+    set(handles.text_EM, 'enable', 'on');
+    set(handles.popup_EM, 'enable', 'on');
+    set(handles.text_X, 'enable', 'off');
+    set(handles.edit_X1, 'enable', 'off');
+    set(handles.text_to_X, 'enable', 'off');
+    set(handles.edit_X2, 'enable', 'off');
+    set(handles.text_Y, 'enable', 'off');
+    set(handles.edit_Y1, 'enable', 'off');
+    set(handles.text_to_Y, 'enable', 'off');
+    set(handles.edit_Y2, 'enable', 'off');
+    set(handles.text_Z, 'enable', 'off');
+    set(handles.edit_Z1, 'enable', 'off');
+    set(handles.text_to_Z, 'enable', 'off');
+    set(handles.edit_Z2, 'enable', 'off');
+    set(handles.text_classes, 'enable', 'on');
+
+    
+    
+end
+vast = evalin('base','vast');
+%vinfo = vast.getinfo;
+[nroflayers, res] = vast.getnroflayers()
+
+% [~] = vast.setapilayersenabled(1);
+%%% read from layer 1
+%[~] = vast.setselectedapilayernr(layerindx-1);
+
+for layernr=1:nroflayers
+    [linfo, res] = vast.getlayerinfo(layernr-1); % zero indexed
+    if linfo.type == 0 | linfo.type == 6
+        layernames_EM{layernr} = linfo.name;
+    end
+end
+
+set(handles.popup_EM, 'string', layernames_EM);
+
+
+
+% --- Executes during object creation, after setting all properties.
+function popup_prediction_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_prediction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_X1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_X1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_X1 as text
+%        str2double(get(hObject,'String')) returns contents of edit_X1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_X1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_X1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_Y1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_Y1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_Y1 as text
+%        str2double(get(hObject,'String')) returns contents of edit_Y1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_Y1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_Y1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_Z1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_Z1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_Z1 as text
+%        str2double(get(hObject,'String')) returns contents of edit_Z1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_Z1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_Z1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_X2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_X2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_X2 as text
+%        str2double(get(hObject,'String')) returns contents of edit_X2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_X2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_X2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_Y2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_Y2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_Y2 as text
+%        str2double(get(hObject,'String')) returns contents of edit_Y2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_Y2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_Y2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_Z2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_Z2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_Z2 as text
+%        str2double(get(hObject,'String')) returns contents of edit_Z2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_Z2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_Z2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_network_prediction_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_network_prediction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_network_prediction as text
+%        str2double(get(hObject,'String')) returns contents of edit_network_prediction as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_network_prediction_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_network_prediction (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in button_browse_net.
+function button_browse_net_Callback(hObject, eventdata, handles)
+% hObject    handle to button_browse_net (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[file, path] = uigetfile('*.mat');
+oldpointer = get(handles.figure1, 'pointer');
+set(handles.figure1, 'pointer', 'watch')
+drawnow;
+net = load(fullfile(path,file));
+set(handles.edit_network_prediction, 'string', fullfile(path,file));
+assignin('base','predict_net',net);
+
+
+% --- Executes on button press in button_predict.
+function button_predict_Callback(hObject, eventdata, handles)
+% hObject    handle to button_predict (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+contents = get(handles.popup_prediction,'String');
+selected = contents{get(handles.popup_prediction,'Value')};
+net_struct = evalin('base', 'predict_net');
+net = getfield(net_struct, 'net');
+pred_path = get(handles.edit_pred, 'string');
+prob_path = get(handles.edit_prob, 'string');
+layernr = get(handles.popup_EM, 'value')-1;
+num_classes = str2double(get(handles.edit_num_classes, 'string'));
+overwrite = get(handles.checkbox_overwrite, 'value');
+
+if strcmp(selected, 'On portion of volume') == 1
+    %net_struct = evalin('base', 'predict_net');
+    %net = getfield(net_struct, 'net');
+    i_init = str2double(get(handles.edit_X1,'string'));
+    i_final = str2double(get(handles.edit_X2,'string'));
+    j_init = str2double(get(handles.edit_Y1,'string'));
+    j_final = str2double(get(handles.edit_Y2,'string'));
+    z_init = str2double(get(handles.edit_Z1,'string'));
+    z_final = str2double(get(handles.edit_Z2,'string'));
+    % pred_path = get(handles.edit_pred, 'string');
+    %prob_path = get(handles.edit_prob, 'string');
+    %layernr = get(handles.popup_EM, 'value')-1;
+    %num_classes = str2double(get(handles.edit_num_classes, 'string'));
+    [flag,  density_mat, density_peak_location_mat] = predict_whole_volume(net, pred_path, prob_path, layernr, i_init, i_final, j_init, j_final, z_init, z_final,overwrite, num_classes);
+    if (flag == 1)
+        [icondata,iconcmap] = imread('brain_success.jpg');
+        h=msgbox('Operation Completed',...
+            'Success','custom',icondata,iconcmap);
+    end
+    
+elseif strcmp(selected, 'On whole volume') == 1
+    %net_struct = evalin('base', 'predict_net');
+    %net = getfield(net_struct, 'net');
+    %pred_path = get(handles.edit_pred, 'string');
+    %prob_path = get(handles.edit_prob, 'string');
+    %layernr = get(handles.popup_EM, 'value')-1;
+    %num_classes = str2double(get(handles.edit_num_classes, 'string'));
+    tic
+    [flag,  density_mat, density_peak_location_mat] = predict_whole_volume(net,pred_path, prob_path, layernr, [], [], [], [], [], [],overwrite, num_classes);
+    if (flag == 1)
+        [icondata,iconcmap] = imread('brain_success.jpg');
+        h=msgbox('Operation Completed',...
+            'Success','custom',icondata,iconcmap);
+    end
+    toc 
+    
+elseif strcmp(selected, 'From VAST annotation') == 1
+    %net_struct = evalin('base', 'predict_net');
+    %net = getfield(net_struct, 'net');
+    %pred_path = get(handles.edit_pred, 'string');
+    %prob_path = get(handles.edit_prob, 'string');
+    %layernr = get(handles.popup_EM, 'value')-1;
+    % num_classes = str2double(get(handles.edit_num_classes, 'string'));
+    [flag] = traverse_space_DFS(net, pred_path, prob_path, layernr,overwrite, num_classes);
+    if (flag == 1)
+        [icondata,iconcmap] = imread('brain_success.jpg');
+        h=msgbox('Operation Completed',...
+            'Success','custom',icondata,iconcmap);
+    end
+    
+elseif strcmp(selected, 'From skeleton file') == 1
+    vast = evalin('base', 'vast');
+    [nroflayers, res] = vast.getnroflayers();
+    
+    for layer_num=1:nroflayers
+        [linfo, res] = vast.getlayerinfo(layer_num-1); % zero indexed
+        layernames{layer_num} = linfo.name;
+    end
+    
+    % user inputs
+    [skel_layer, tf] = listdlg('ListString', layernames,'PromptString','Select Segmentation Layer with Frames','Name','Vast Layers');
+    
+    %%% enable api layers
+    [~] = vast.setapilayersenabled(1);
+    %%% read from layer 1
+    [~] = vast.setselectedapilayernr(skel_layer-1);
+    
+    vinfo = vast.getinfo();
+    size_x = double(vinfo.datasizex);
+    size_y = double(vinfo.datasizey);
+    size_z = double(vinfo.datasizez);
+    
+    %%% Import annotation info
+    [annonr, res] = vast.getannolayernrofobjects();
+    [annonames, res] = vast.getannolayerobjectnames();
+    [annodata, res] = vast.getannolayerobjectdata();
+    coords = zeros(1, 3);
+    
+    
+    %%% input the dimensions of the predicting window
+    dimStr = inputdlg('dimensions of the prediction window','window dimension');
+    window_dimension = str2double(dimStr{1}); %the anchor point of the skeleton will be in the center of the predicted window (x,y,z)
+    zStr = inputdlg('z depth of the prediction window','z depth');
+    zdepth = str2double(zStr{1});
+    half_window_xy = ceil(window_dimension/2);
+    half_window_z = ceil(zdepth/2);
+    inStr = inputdlg('mip','mip');
+    miplevel = str2double(inStr{1});
+    
+    for iskel = 1:annonr
+        coords = annodata(iskel, 12:14);
+        res = vast.setviewcoordinates(coords(1), coords(2), coords(3));
+        i_init = coords(1) - half_window_xy;
+        if i_init < 0
+            i_init = 0;
+        end
+        i_final = coords(1) + half_window_xy;
+        if i_final > size_x
+            i_final = size_x;
+        end
+        j_init = coords(2) - half_window_xy;
+        if j_init < 0
+            j_init = 0;
+        end
+        j_final = coords(2) + half_window_xy;
+        if j_final > size_y
+            j_final = size_y;
+        end
+        z_init = coords(3) - half_window_z;
+        if z_init < 0
+            z_init = 0;
+        end
+        z_final = coords(3) + half_window_z;
+        if z_final > size_z
+            z_final = size_z;
+        end
+        [flag,  density_mat, density_peak_location_mat] = predict_whole_volume(net, pred_path, prob_path, layernr, i_init, i_final, j_init, j_final, z_init, z_final,overwrite, num_classes, [], miplevel);
+    end   
+    if (flag == 1)
+    [icondata,iconcmap] = imread('brain_success.jpg');
+    h=msgbox('Operation Completed',...
+        'Success','custom',icondata,iconcmap);
+end
+
+
+    
+end
+
+
+
+save('density_matrix', 'density_mat');
+save( 'density_peak_location_matrix', 'density_peak_location_mat');
+
+% assignin('base', 'density_matrix', density_mat);
+% assignin('base', 'density_peak_location_matrix', density_peak_location_mat);
+
+% --- Executes during object creation, after setting all properties.
+function text_pred_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text_pred (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+
+function edit_pred_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_pred (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_pred as text
+%        str2double(get(hObject,'String')) returns contents of edit_pred as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_pred_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_pred (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_prob_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_prob (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_prob as text
+%        str2double(get(hObject,'String')) returns contents of edit_prob as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_prob_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_prob (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in button_pred.
+function button_pred_Callback(hObject, eventdata, handles)
+% hObject    handle to button_pred (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+path_pred = uigetdir();
+set(handles.edit_pred, 'string', path_pred);
+
+% --- Executes on button press in button_prob.
+function button_prob_Callback(hObject, eventdata, handles)
+% hObject    handle to button_prob (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if ~isempty(get(handles.edit_pred, 'string'))
+    path_prob = uigetdir(get(handles.edit_pred, "string"));
+else
+    path_prob = uigetdir();
+end
+set(handles.edit_prob, 'String', path_prob);
+
+
+% --- Executes on selection change in popup_EM.
+function popup_EM_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_EM (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_EM contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_EM
+
+
+% --- Executes during object creation, after setting all properties.
+function popup_EM_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_EM (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_num_classes_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_num_classes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_num_classes as text
+%        str2double(get(hObject,'String')) returns contents of edit_num_classes as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_num_classes_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_num_classes (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in button_x_beginning.
+function button_x_beginning_Callback(hObject, eventdata, handles)
+% hObject    handle to button_x_beginning (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+[x, y, z, res] = vast.getviewcoordinates;
+set(handles.edit_X1, 'string', x);
+
+
+% --- Executes on button press in button_y_beginning.
+function button_y_beginning_Callback(hObject, eventdata, handles)
+% hObject    handle to button_y_beginning (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+[x, y, z, res] = vast.getviewcoordinates;
+set(handles.edit_Y1, 'string', y);
+
+
+% --- Executes on button press in button_z_beginning.
+function button_z_beginning_Callback(hObject, eventdata, handles)
+% hObject    handle to button_z_beginning (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+[x, y, z, res] = vast.getviewcoordinates;
+set(handles.edit_Z1, 'string', z);
+
+
+% --- Executes on button press in button_x_end.
+function button_x_end_Callback(hObject, eventdata, handles)
+% hObject    handle to button_x_end (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+[x, y, z, res] = vast.getviewcoordinates;
+set(handles.edit_X2, 'string', x);
+
+
+% --- Executes on button press in button_y_end.
+function button_y_end_Callback(hObject, eventdata, handles)
+% hObject    handle to button_y_end (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+[x, y, z, res] = vast.getviewcoordinates;
+set(handles.edit_Y2, 'string', y);
+
+
+% --- Executes on button press in button_z_end.
+function button_z_end_Callback(hObject, eventdata, handles)
+% hObject    handle to button_z_end (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+[x, y, z, res] = vast.getviewcoordinates;
+set(handles.edit_Z2, 'string', z);
+
+
+% --- Executes on button press in pushbutton_maxX.
+function pushbutton_maxX_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_maxX (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+vinfo = vast.getinfo;
+set(handles.edit_X1, 'string', 0);
+set(handles.edit_X2, 'string', vinfo.datasizex-1);
+
+
+% --- Executes on button press in pushbutton_maxY.
+function pushbutton_maxY_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_maxY (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+vinfo = vast.getinfo;
+set(handles.edit_Y1, 'string', 0);
+set(handles.edit_Y2, 'string', vinfo.datasizey-1);
+
+
+% --- Executes on button press in pushbutton_maxZ.
+function pushbutton_maxZ_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_maxZ (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+vast = evalin('base','vast');
+vinfo = vast.getinfo;
+set(handles.edit_Z1, 'string', 0);
+set(handles.edit_Z2, 'string', vinfo.datasizez-1);
+
+
+% --- Executes on button press in checkbox_overwrite.
+function checkbox_overwrite_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox_overwrite (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox_overwrite
